@@ -14,8 +14,8 @@ In France, [leboncoin.fr](http://www.leboncoin.fr/) is the website leader of cla
 
 ### Step of the project :
 
-- [ ] Define the JSON schema for a car 'leboncoin.fr' classified ad.
-- [ ] Define the JSON schema for a car 'lacentrale.fr' classified ad.
+- [X] Define the JSON schema for a car 'leboncoin.fr' classified ad.
+- [X] Define the JSON schema for a car 'lacentrale.fr' classified ad.
 - [ ] Write the UserFlow
 - [ ] Create the NPM module 'leboncoin'.
     From the ad url, scrap the webpage and return the car properties in JSON format.
