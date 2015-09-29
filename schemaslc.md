@@ -1,3 +1,4 @@
+```txt
 {
 	"title": "LACENTRALE",
 	"type": "object",
@@ -37,3 +38,4 @@
 	},
 	"required": ["brand", "model", "year", "kilometers", "price"]
 }
+```
