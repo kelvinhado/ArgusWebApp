@@ -29,7 +29,7 @@ this desctiption is not necessarily required.
 		      "description" : "the year when the car was build"
 					"type": "string",
 				}
-		    "mileage": {
+		    "kilometers": {
 		      "description" : "number of kms of the car, not miles"
 					"type": "string",
 				}
