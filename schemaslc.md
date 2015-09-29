@@ -1,3 +1,8 @@
+##Step 2 - Classified ad car definition
+
+###Schema Json - to LACENTRALE.Fr
+
+
 ```txt
 {
 	"title": "LACENTRALE",
