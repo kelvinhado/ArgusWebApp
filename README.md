@@ -9,7 +9,7 @@ In France, [leboncoin.fr](http://www.leboncoin.fr/) is the website leader of cla
 ### Members of the project :
 - Alan Chan
 - Antonin Riggi
-- Colas Yue
+- Nicolas Yue
 - Kelvin Hado
 
 ### Step of the project :
