@@ -40,3 +40,4 @@
     },
     "required": ["title", "postCode", "energy" "brand", "model", "year", "mileage", "gearbox", "price"]
 }
+ 
