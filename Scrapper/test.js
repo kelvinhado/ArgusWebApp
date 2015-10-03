@@ -7,6 +7,7 @@ var app     = express();
 // si jamais on vous dit qu'il express, request ou cheerio, faire $ npm install XX
 // quand on lance le code, faudra aller sur "http://localhost:8081/scrape" et un fichier output.json sera créé dans le dossier, j'ai mis celui qu'on pour le moment dans le git
 // le truc arrive pas à retourner les char spéciaux, style "é", et quelque fois retourn des \n (quand y'a du style j'ai l'impression), on peut s'en débarasser avec un search \n et replace par du vide
+
 app.get('/scrape', function(req, res){
 
   url = 'http://www.leboncoin.fr/voitures/852693116.htm?ca=12_s';
