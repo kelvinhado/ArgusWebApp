@@ -23,12 +23,11 @@ app.get('/scrape', function(req, res){
             var tablbc =[]; //j'ai créé 2 tab pour le moment car je suis mauvais
             var tab = []; //je pense on peut avoir qu'une tab, et rendre le retour des résultats plus dynamique
 
+
             $('.floatLeft tr').each(function(){ //le .each fait une sorte de foreach tr dans .floatLeft
               var k = $('th',this).text();  // valeur dans le th, par exemple "Marque :" (useless mais c'bien de savoir, bitch)
               var v = $('td', this).text(); // la valeur dans le td, donc ce qu'on veut
               tab.push(v);
-
-
             })
 
             $('.content').filter(function(){ //si on fait pas de .each, alors c'est .filter
@@ -41,11 +40,10 @@ app.get('/scrape', function(req, res){
 
 
             $('.lbcParams.criterias tr').each(function(){ //normalement il y a un espace entre lbcParams et criterias mais il faut mettre un ".", en mettant un espace on précise une autre balise, ici tr (je suppose)
-
-
               var v = $('td',this).text();
               tablbc.push(v);
             })
+            
             //du coup plein de tab c'est cheum
             json.price = tab[0];
             json.postCode = tab[2];
