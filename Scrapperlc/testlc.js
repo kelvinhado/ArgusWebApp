@@ -4,10 +4,6 @@ var request = require('request');
 var cheerio = require('cheerio');
 var app     = express();
 
-// si jamais on vous dit qu'il express, request ou cheerio, faire $ npm install XX
-// quand on lance le code, faudra aller sur "http://localhost:8081/scrape" et un fichier output.json sera créé dans le dossier, j'ai mis celui qu'on pour le moment dans le git
-// le truc arrive pas à retourner les char spéciaux, style "é", et quelque fois retourn des \n (quand y'a du style j'ai l'impression), on peut s'en débarasser avec un search \n et replace par du vide
-
 app.get('/scrape', function(req, res){
 
   url = 'http://www.lacentrale.fr/auto-occasion-annonce-28165729.html';
@@ -18,7 +14,7 @@ app.get('/scrape', function(req, res){
 
             var title, brand, model, energy, year, kilometers, gearbox, price;
 
-            var json = { title :"", brand:"", model:"", energy:"", year:"", kilometers:"", gearbox:"", price:""} // de ce que j'ai compris, c'est ici que le format du json est défini, au début je pensais que ça suivrait package.json
+            var json = { title :"", brand:"", model:"", energy:"", year:"", kilometers:"", gearbox:"", price:""} 
 
             var tablc =[];
 

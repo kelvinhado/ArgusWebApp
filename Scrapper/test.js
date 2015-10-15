@@ -4,9 +4,8 @@ var request = require('request');
 var cheerio = require('cheerio');
 var app     = express();
 
-// si jamais on vous dit qu'il express, request ou cheerio, faire $ npm install XX
-// quand on lance le code, faudra aller sur "http://localhost:8081/scrape" et un fichier output.json sera créé dans le dossier, j'ai mis celui qu'on pour le moment dans le git
-// le truc arrive pas à retourner les char spéciaux, style "é", et quelque fois retourn des \n (quand y'a du style j'ai l'impression), on peut s'en débarasser avec un search \n et replace par du vide
+// If you have an error related to express, request or cheerio, just type on the terminal $ npm install XX (express,request,cheerio).
+// Things to fix, special character and empty space.
 
 app.get('/scrape', function(req, res){
 
@@ -16,21 +15,20 @@ app.get('/scrape', function(req, res){
         if(!error){
             var $ = cheerio.load(html);
 
-            var title, postCode, brand, model, energy, kilometers, gearbox, description, price;
-            var json = { title :"", postCode:"", brand:"", model:"", energy:"", kilometers:"", gearbox:"", description:"", price:""} // de ce que j'ai compris, c'est ici que le format du json est défini, au début je pensais que ça suivrait package.json
+            var title, postCode, brand, model, energy, year, kilometers, gearbox, description, price;
+            var json = { title :"", postCode:"", brand:"", model:"", energy:"", year:"", kilometers:"", gearbox:"", description:"", price:""} // This is where we define our .json
+
+            var tablbc =[];
+            var tab = [];
 
 
-            var tablbc =[]; //j'ai créé 2 tab pour le moment car je suis mauvais
-            var tab = []; //je pense on peut avoir qu'une tab, et rendre le retour des résultats plus dynamique
-
-
-            $('.floatLeft tr').each(function(){ //le .each fait une sorte de foreach tr dans .floatLeft
-              var k = $('th',this).text();  // valeur dans le th, par exemple "Marque :" (useless mais c'bien de savoir, bitch)
-              var v = $('td', this).text(); // la valeur dans le td, donc ce qu'on veut
+            $('.floatLeft tr').each(function(){ // You use .each to do a loop
+              var k = $('th',this).text();  // value in each th tag
+              var v = $('td', this).text(); // value in each td tag
               tab.push(v);
             })
 
-            $('.content').filter(function(){ //si on fait pas de .each, alors c'est .filter
+            $('.content').filter(function(){ // You use .filter to check on one tag
               json.description = $(this).text();
             })
 
@@ -39,16 +37,17 @@ app.get('/scrape', function(req, res){
             })
 
 
-            $('.lbcParams.criterias tr').each(function(){ //normalement il y a un espace entre lbcParams et criterias mais il faut mettre un ".", en mettant un espace on précise une autre balise, ici tr (je suppose)
-              var v = $('td',this).text();
+            $('.lbcParams.criterias td').each(function(){ //Between lbcParams and criteria, there should be an empty space but we need to put a . otherwise it will think that criteria is another tag to check.
+              var v = $(this).text();
               tablbc.push(v);
             })
-            
-            //du coup plein de tab c'est cheum
+
             json.price = tab[0];
             json.postCode = tab[2];
+
             json.brand = tablbc[0];
             json.model = tablbc[1];
+            json.year = tablbc[2];
             json.kilometers = tablbc[3];
             json.energy = tablbc[4];
             json.gearbox = tablbc[5];
@@ -64,6 +63,8 @@ fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
 res.send('Check your console!')
     });
 })
+
+// After debugging the code you will have to go to "http://localhost:8081/scrape" a file output.json will be created in your directory.
 
 app.listen('8081')
 console.log('Magic happens on port 8081');
