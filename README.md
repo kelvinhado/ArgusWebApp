@@ -12,12 +12,12 @@ In France, [leboncoin.fr](http://www.leboncoin.fr/) is the website leader of cla
 - Nicolas Yue
 - Kelvin Hado
 
-### Step of the project :
+### Steps of the project :
 
 - [X] Define the JSON schema for a car 'leboncoin.fr' classified ad.
 - [X] Define the JSON schema for a car 'lacentrale.fr' classified ad.
 - [X] Write the UserFlow
-- [ ] Create the NPM module 'leboncoin'.
+- [X] Create the NPM module 'leboncoin'.
     From the ad url, scrap the webpage and return the car properties in JSON format.
 - [ ] Create the NPM module 'lacentrale'.
     From the Json object extracted, give the "Cote Argus".
