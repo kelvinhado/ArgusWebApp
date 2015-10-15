@@ -1,15 +1,27 @@
 var express = require('express');
-var fs = require('fs');
+var fs      = require('fs');
 var request = require('request');
 var cheerio = require('cheerio');
 var app     = express();
 
+/*
+ *  LEBONCOIN MODULE
+ */
+
 // If you have an error related to express, request or cheerio, just type on the terminal $ npm install XX (express,request,cheerio).
-// Things to fix, special character and empty space.
 
-app.get('/scrape', function(req, res){
 
-  url = 'http://www.leboncoin.fr/voitures/852693116.htm?ca=12_s';
+// we export the function so that we can use it outside by using leboncoin.getJson(flag).
+// this function will be executed only when called from our server.
+exports.getJson = function(flag) {
+
+  // building the url
+  url = 'http://www.leboncoin.fr/voitures/' + flag + '.htm';
+
+  // ** for debug
+    // console.log('url : ' + url);
+  // ** end debug
+  var result;
 
     request(url, function(error, response, html){
         if(!error){
@@ -29,11 +41,11 @@ app.get('/scrape', function(req, res){
             })
 
             $('.content').filter(function(){ // You use .filter to check on one tag
-              json.description = $(this).text();
+              json.description = cleanField($(this).text());
             })
 
             $('.header_adview').filter(function(){
-              json.title = $(this).text();
+              json.title = cleanField($(this).text());
             })
 
 
@@ -42,30 +54,35 @@ app.get('/scrape', function(req, res){
               tablbc.push(v);
             })
 
-            json.price = tab[0];
+            json.price = cleanField(tab[0]);
             json.postCode = tab[2];
 
             json.brand = tablbc[0];
             json.model = tablbc[1];
-            json.year = tablbc[2];
+            json.year = cleanField(tablbc[2]);
             json.kilometers = tablbc[3];
             json.energy = tablbc[4];
             json.gearbox = tablbc[5];
 
+            result = json;
         }
 
-fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
+// ** for debug
+  fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
+  console.log('File successfully written! - Check your project directory for the output.json file');
+  })
+// ** end debug
 
-    console.log('File successfully written! - Check your project directory for the output.json file');
+}); // end request
 
-})
+return result;
+}; // end exports.getJson
 
-res.send('Check your console!')
-    });
-})
 
-// After debugging the code you will have to go to "http://localhost:8081/scrape" a file output.json will be created in your directory.
 
-app.listen('8081')
-console.log('Magic happens on port 8081');
-exports = module.exports = app;
+function cleanField(text) {
+    // we replace all "\n" to blank space
+    var step1 = text.replace(/(\r\n|\n|\r)/gm," ");
+    // we replace extra blank space and return the results
+    return  step1.replace(/^\s+|\s+$/g, "");
+}
