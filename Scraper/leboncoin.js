@@ -13,7 +13,7 @@ var app     = express();
 
 // we export the function so that we can use it outside by using leboncoin.getJson(flag).
 // this function will be executed only when called from our server.
-exports.getJson = function(flag) {
+exports.getJson = function(flag, callback) {
 
   // building the url
   url = 'http://www.leboncoin.fr/voitures/' + flag + '.htm';
@@ -21,9 +21,8 @@ exports.getJson = function(flag) {
   // ** for debug
     // console.log('url : ' + url);
   // ** end debug
-  var result;
 
-    request(url, function(error, response, html){
+ var req = request(url, function(error, response, html){
         if(!error){
             var $ = cheerio.load(html);
 
@@ -60,22 +59,20 @@ exports.getJson = function(flag) {
             json.brand = tablbc[0];
             json.model = tablbc[1];
             json.year = cleanField(tablbc[2]);
-            json.kilometers = tablbc[3];
+            json.kilometers = tablbc[3].replace(/[KM]| /g, "");
             json.energy = tablbc[4];
             json.gearbox = tablbc[5];
-
-            result = json;
+            callback(json);
         }
 
 // ** for debug
-  fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
-  console.log('File successfully written! - Check your project directory for the output.json file');
-  })
+  // fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
+  // console.log('File successfully written! - Check your project directory for the output.json file');
+  // })
 // ** end debug
 
-}); // end request
 
-return result;
+}); // end request
 }; // end exports.getJson
 
 
