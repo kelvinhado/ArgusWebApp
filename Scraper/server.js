@@ -3,7 +3,7 @@ var url = require('url');
 var io = require('socket.io');
 var querystring = require('querystring');
 var leboncoin = require("./leboncoin");
-//var lcentrale = require("./lacentrale.js");
+var lacentrale = require("./lacentrale");
 
 /*
  *  SERVER NODE JS
@@ -22,15 +22,35 @@ var server = http.createServer(function(req, res) {
         // get the parameters in the url
         var params = querystring.parse(url.parse(req.url).query);
         if('flag' in params) {
+
             // use our leboncoin module :
-            var json = leboncoin.getJson(params['flag']);
-            res.write("json generated with leboncoin module");
+            leboncoin.getJson(params['flag'],function(jsonResult){
+              // that code will be executed when the getJson is done :
+                console.log("SERV_log // OK ! -> " + jsonResult['model'] + " (" + jsonResult['kilometers'] + ")");
+              // use our lacentrale module :
+              lacentrale.fetchArgus(jsonResult, function(argusResult) {
+                 console.log("SERV_log // OK ! -> " + argusResult);
+              });
+
+              res.write("json generated with leboncoin module" + jsonResult['model']);
+              res.end();
+
+            });
+              // res.write("json generated with leboncoin module" + json);
+
+
+            // when json is loaded from lbc module :
+
+            // page de test
+            // res.write("\n testing lacentrale");
+            // var argus = lacentrale.fetchArgus(json);
+            // res.write("\n url : " + argus);
           }
         else {
             res.write('please add the "flag" parameter to the url');
+            res.end();
         }
     }
-    res.end();
 });
 server.listen(7070);
 
