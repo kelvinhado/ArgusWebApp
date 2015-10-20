@@ -33,7 +33,7 @@ var server = http.createServer(function(req, res) {
                 console.log("SERV_log // OK ! -> " + jsonResult['model']);
               // use our lacentrale module :
               lacentrale.fetchArgus(jsonResult, function(argusResult) {
-                 console.log("SERV_log // FOUND ! Argus : " + argusResult + "€");
+                 //console.log("SERV_log // FOUND ! Argus : " + argusResult + "€");
               });
 
               res.write("working for u (check the console please)");
