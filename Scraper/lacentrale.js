@@ -2,6 +2,7 @@ var express = require('express');
 var fs      = require('fs');
 var request = require('request');
 var cheerio = require('cheerio');
+var async = require('async');
 
 // Json Prototype
 // var jsonTEST = {
@@ -29,9 +30,119 @@ exports.fetchArgus = function(json, callback) {
       url += "-" + (json['model']);
       url += "--" + (json['year']);
       url += "-.html";
-  // ** for debug
-    console.log('LC_log // url : ' + url);
+  // // ** for debug
+  //   console.log('LC_log // url : ' + url);
   // ** end debug
+
+    var brand, model, year, energy, gearbox, title, price;
+    var sub_url;
+    var json = JSON.parse(jsonstring)
+    var resultLength;
+    price = json.price;
+    brand = json.brand;
+    model = json.model;
+    year = json.year;
+    gearbox = json.gearbox;
+    energy = json.energy;
+    title = json.title;
+
+
+  var result_json = {average: 0, total: 0, low: 0, dis: ""};
+  request(url, function(error, reponse, html){
+
+    if(!error){
+      var $ = cheerio.load(html);
+      resultLength = $('.tdSD.QuotMarque').length;
+
+      var en, gbox;
+      var priceArray = new Array();
+      var t = 0;
+      var h = 0;
+      async.forEachOf($('.tdSD.QuotMarque'), function(value, key, callback){
+        t++;
+        var each_data = $(value);
+        var en = (each_data.siblings(".tdSD.QuotNrj").text()).replace(/^\s+|\s+$/g,'');
+        var gbox = (each_data.siblings(".tdSD.QuotBoite").text()).replace(/^\s+|\s+$/g,'');
+
+        en = en.toLowerCase();
+        energy = energy.toLowerCase();
+        var index = en.indexOf(energy);
+
+        if((index !== -1 || energy.toLowerCase() === "autre"|| energy.toLowerCase() === "autres") && (gbox.toLowerCase() === gearbox.toLowerCase())) {
+
+                                  sub_url = "http://www.lacentrale.fr/" + each_data.find("a").attr("href");
+
+                                  request(sub_options, function(error, response, html) {     // two parameters: an URL and a callback
+                                    if(!error) {
+
+                                          var $ = cheerio.load(html);
+                                          priceArray[h] = ($(".Result_Cote.arial.tx20").text()).replace(/[^0-9]/ig,"");
+                                          h++;
+                                          callback();
+                                              }
+                                          });
+                          }else {
+                                    callback();
+                            }
+
+                    // Handle result after all the prices of the records are recorded
+                    }, function(err){
+
+                        if( err ) {
+                            console.log('Error happend!');
+                            myCallback("no result");
+                        } else {
+
+                            console.log(url);
+                            console.log("Total records: " + t + ", effective record: " + h);
+
+                            if(priceArray.length !== 0){
+
+                                result_json.total = priceArray.length;
+
+                                for(var i=0; i<priceArray.length; i++){
+
+                                    result_json.average += (priceArray[i] / priceArray.length);
+
+                                    if(priceArray[i] > prix) {
+
+                                        result_json.low++;
+
+                                    }
+
+                                }
+
+                                result_json.average = Math.round(result_json.average);
+
+                                result_json.dis = marque + "-" + modele + "--" + annee_modele;
+
+                                console.log("---There is 'la cote Argus' for this car------");
+
+                                myCallback(result_json);
+
+                            }else {
+
+                                result_json.total = 0;
+
+                                result_json.average = 0;
+
+                                result_json.low = 0;
+
+                                result_json.dis = marque + "-" + modele + "--" + annee_modele;
+
+                                console.log("---no argus' for this car------");
+
+                                myCallback(result_json);
+
+                            }
+
+                        }
+
+                    });
+
+                }
+
+        });
 
 
   callback(url);
