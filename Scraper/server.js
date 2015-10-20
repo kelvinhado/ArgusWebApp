@@ -13,12 +13,16 @@ var lacentrale = require("./lacentrale");
 
 var server = http.createServer(function(req, res) {
   var page = url.parse(req.url).pathname;
-    console.log(page);
     res.writeHead(200, {"Content-Type": "text/plain"});
     if (page == '/') {
         res.write('To use the server, follow the link : localhost:7070/argus?flag=868496177 \n For example : for http://www.leboncoin.fr/voitures/865394106.htm?ca=12_s, the flag will be : 865394106');
+        res.end();
     }
     else if (page == '/argus') {
+        //TODO when UI ready // get the url given by the user or given by the clipboard
+        // var test = "http://www.leboncoin.fr/voitures/870448645.htm?ca=12_s";
+        // var lbc_flag = test.substring(test.lastIndexOf("/")+1,test.lastIndexOf(".")); // give us the flag e.g. 870448645
+
         // get the parameters in the url
         var params = querystring.parse(url.parse(req.url).query);
         if('flag' in params) {
@@ -26,13 +30,13 @@ var server = http.createServer(function(req, res) {
             // use our leboncoin module :
             leboncoin.getJson(params['flag'],function(jsonResult){
               // that code will be executed when the getJson is done :
-                console.log("SERV_log // OK ! -> " + jsonResult['model'] + " (" + jsonResult['kilometers'] + ")");
+                console.log("SERV_log // OK ! -> " + jsonResult['model']);
               // use our lacentrale module :
               lacentrale.fetchArgus(jsonResult, function(argusResult) {
-                 console.log("SERV_log // OK ! -> " + argusResult);
+                 console.log("SERV_log // FOUND ! Argus : " + argusResult + "€");
               });
 
-              res.write("json generated with leboncoin module" + jsonResult['model']);
+              res.write("working for u (check the console please)");
               res.end();
 
             });
@@ -53,7 +57,5 @@ var server = http.createServer(function(req, res) {
     }
 });
 server.listen(7070);
-
-
 
 io.listen(server);
