@@ -3,6 +3,7 @@ var fs      = require('fs');
 var request = require('request');
 var cheerio = require('cheerio');
 var async = require('async');
+var logTable = require('tty-table');
 
 var random_useragent = require('random-useragent');
 
@@ -10,11 +11,27 @@ var random_useragent = require('random-useragent');
 // Settings
 var denom_lbc_gearbox_mecanique = "manuelle";
 var denom_lc_gearbox_mecanique = "mécanique";
+var baseUrl = "http://www.lacentrale.fr/cote-voitures";
 //
 
-
-
-var baseUrl = "http://www.lacentrale.fr/cote-voitures";
+// for easy display
+var header = [
+    {
+        value : "version",
+        headerColor : "cyan",
+        color: "yellow",
+        align : "left",
+        paddingLeft : 1,
+        width : 30
+    },
+    {
+        value : "argus",
+        headerColor : "cyan",
+        color : "yellow",
+        width : 30
+    }
+];
+var rows_result = [];
 
 
 exports.fetchArgus = function(json, exportCallback) {
@@ -61,54 +78,50 @@ exports.fetchArgus = function(json, exportCallback) {
       // we will scrapp informations from every items in the list
       var nomberOfVersion = 0;
 
-        // WARNING we will work only with the first result for now but we will still use forEach for next improvment
 
         // for each item of tdSD
         async.forEachOf($('.tdSD.QuotMarque'), function(value, key, callback) {
               nomberOfVersion++;
 
               var current_car_version     = $(value);
-              var current_car_energy      = (current_car_version.siblings(".tdSD.QuotNrj").text()).replace(/^\s+|\s+$/g,'');
-              var current_car_gearbox     = (current_car_version.siblings(".tdSD.QuotBoite").text()).replace(/^\s+|\s+$/g,'');
-              current_car_energy = current_car_energy.toLowerCase();
-              current_car_gearbox = current_car_gearbox.toLowerCase();
+              var current_car_energy      = ((current_car_version.siblings(".tdSD.QuotNrj").text()).replace(/^\s+|\s+$/g,'')).toLowerCase();
+              var current_car_gearbox     = ((current_car_version.siblings(".tdSD.QuotBoite").text()).replace(/^\s+|\s+$/g,'')).toLowerCase();
               if(lbc_gearbox === denom_lbc_gearbox_mecanique) {
                 lbc_gearbox = denom_lc_gearbox_mecanique;
               }
+              //** we directly try to extract the price from the <!-- tdSD QuotPrice --> available in the current page so that we do not have to do an other request to fetch it
+              // var div = $("*").html(current_car_version),
+              //   comment = div.contents().filter(function() {
+              //       return this.nodeType === 8;
+              //   }).get(0);
+              // console.log(comment.nodeValue);
+              //** (not working for now)
 
-            //TODO : Check valid arguments (ex model : "autres") to catch
+
+
+              //TODO : Check valid arguments (ex model : "autres") to catch
               //if(current_car_energy === lbc_energy && current_car_gearbox === lbc_gearbox) {
-              if(current_car_gearbox === lbc_gearbox) { // for now we just check gearbox
+              if(current_car_gearbox === lbc_gearbox) { // for now we just check gearbox for now
 
                   // building cote url
                   var cote_url = "http://www.lacentrale.fr/" + current_car_version.find("a").attr("href");
+                  var cote_title =  current_car_version.find("a").text();
 
-                  var cote_title_href =  current_car_version.find("a").attr("href");
-                  // gets a random user agent string
-                  // var user_agent = random_useragent.getRandom();
-                  // // Set the headers
-                  // var headers = {
-                  //     'User-Agent':        user_agent,
-                  //     'Content-Type':     'application/x-www-form-urlencoded'
-                  // }
-                  // // request
-                  // cote_opt = {
-                  //     url: cote_url,
-                  //     method: 'GET',
-                  //     headers: headers
-                  // }
-                  request(cote_url, function(error, response, html) {     // two parameters: an URL and a callback
-
+                  //TODO Hundle too many connexion at the same time
+                  request(cote_url, function(error, response, html) {
                       if(!error) {
                           var $ = cheerio.load(html);
                             var argus = ($(".Result_Cote.arial.tx20").text()).replace(/[^0-9]/ig,"");
-                          console.log(cote_title_href + " > " + argus + "€");
-                          exportCallback(argus);
+                          //console.log(cote_title_href + " > " + argus + "€");
+                          //exportCallback(argus);
+                            var argus_txt = argus + " €"
+                          var new_row = { version : cote_title,
+                                          argus : argus_txt   }
+                          rows_result.push(new_row)
                           callback(); // break asyncForEach, go next
                       }
 
                   });
-
 
               } // end if test match
               else {
@@ -124,8 +137,18 @@ exports.fetchArgus = function(json, exportCallback) {
             }
             else {
                // ALL OK
-              console.log("finish :)");
 
+               var t2 = logTable(header,rows_result,{
+                  borderStyle : 2,
+                  paddingBottom : 0,
+                  headerAlign : "center",
+                  align : "center",
+                  color : "green"
+              });
+
+              var str2 = t2.render();
+              console.log(str2);
+              exportCallback(rows_result);
                // TODO Work here with result end send the json result here
             }
 

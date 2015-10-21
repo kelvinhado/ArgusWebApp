@@ -30,10 +30,10 @@ var server = http.createServer(function(req, res) {
             // use our leboncoin module :
             leboncoin.getJson(params['flag'],function(jsonResult){
               // that code will be executed when the getJson is done :
-                console.log("SERV_log // OK ! -> " + jsonResult['model']);
+                console.log("SERV_log // got result from lbc module -> " + jsonResult['model']);
               // use our lacentrale module :
               lacentrale.fetchArgus(jsonResult, function(argusResult) {
-                 //console.log("SERV_log // FOUND ! Argus : " + argusResult + "€");
+                 console.log("SERV_log // got result from lc module -> " + argusResult);
               });
 
               res.write("working for u (check the console please)");
