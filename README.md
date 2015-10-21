@@ -8,8 +8,6 @@ In France, [leboncoin.fr](http://www.leboncoin.fr/) is the website leader of cla
 
 ### Members of the project :
 - Alan Chan
-- Antonin Riggi
-- Nicolas Yue
 - Kelvin Hado
 
 ### Steps of the project :
@@ -19,8 +17,8 @@ In France, [leboncoin.fr](http://www.leboncoin.fr/) is the website leader of cla
 - [X] Write the UserFlow
 - [X] Create the NPM module 'leboncoin'.
     From the ad url, scrap the webpage and return the car properties in JSON format.
-- [ ] Create the NPM module 'lacentrale'.
+- [X] Create the NPM module 'lacentrale'.
     From the Json object extracted, give the "Cote Argus".
-- [ ] Build the Node server with Express.
-- [ ] Design the WebApp that give a feedback to the user if the deal is good or not.
-- [ ] Ultime power ! from a research in leboncoin (with several results) give the feedbacks for every post.
+- [X] Build the Node server with Express.
+- [] Design the WebApp that give a feedback to the user if the deal is good or not.
+- [] Ultime power ! from a research in leboncoin (with several results) give the feedbacks for every post.
