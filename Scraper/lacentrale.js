@@ -29,6 +29,12 @@ var header = [
         headerColor : "cyan",
         color : "yellow",
         width : 30
+    },
+    {
+        value : "good_deal",
+        headerColor : "cyan",
+        color : "yellow",
+        width : 30
     }
 ];
 var rows_result = [];
@@ -49,7 +55,6 @@ exports.fetchArgus = function(json, exportCallback) {
   var lbc_description = json['description'];
   var lbc_price = json['price'];
 
-
   console.log("LC_log // receive : " + lbc_title + "|" + lbc_gearbox + "|" + lbc_energy);
   // build request url using json
   var url = baseUrl;
@@ -63,10 +68,6 @@ exports.fetchArgus = function(json, exportCallback) {
 
   // size of the array scrapped in 'lacentrale'
   var lc_resultsLength;
-
-  // initialize json informations result that will be send to the server
-  var result_json = {
-  };
 
 
   request(url, function(error, reponse, html){
@@ -86,9 +87,16 @@ exports.fetchArgus = function(json, exportCallback) {
               var current_car_version     = $(value);
               var current_car_energy      = ((current_car_version.siblings(".tdSD.QuotNrj").text()).replace(/^\s+|\s+$/g,'')).toLowerCase();
               var current_car_gearbox     = ((current_car_version.siblings(".tdSD.QuotBoite").text()).replace(/^\s+|\s+$/g,'')).toLowerCase();
-              if(lbc_gearbox === denom_lbc_gearbox_mecanique) {
-                lbc_gearbox = denom_lc_gearbox_mecanique;
-              }
+              var current_car_title =  current_car_version.find("a").text();
+
+              // Ajusting data from lbc json
+                if(lbc_gearbox === denom_lbc_gearbox_mecanique) {
+                  lbc_gearbox = denom_lc_gearbox_mecanique;
+                }
+
+
+
+
               //** we directly try to extract the price from the <!-- tdSD QuotPrice --> available in the current page so that we do not have to do an other request to fetch it
               // var div = $("*").html(current_car_version),
               //   comment = div.contents().filter(function() {
@@ -97,15 +105,13 @@ exports.fetchArgus = function(json, exportCallback) {
               // console.log(comment.nodeValue);
               //** (not working for now)
 
-
-
               //TODO : Check valid arguments (ex model : "autres") to catch
-              //if(current_car_energy === lbc_energy && current_car_gearbox === lbc_gearbox) {
-              if(current_car_gearbox === lbc_gearbox) { // for now we just check gearbox for now
+              //if((current_car_energy.indexOf(lbc_energy)>-1) && (current_car_gearbox === lbc_gearbox) && (count_match > 0)) {
+              if(((current_car_energy.indexOf(lbc_energy)>-1) && (current_car_gearbox === lbc_gearbox)) || lbc_energy === "autre"|| lbc_energy === "autres") {
 
                   // building cote url
                   var cote_url = "http://www.lacentrale.fr/" + current_car_version.find("a").attr("href");
-                  var cote_title =  current_car_version.find("a").text();
+
 
                   //TODO Hundle too many connexion at the same time
                   request(cote_url, function(error, response, html) {
@@ -114,9 +120,16 @@ exports.fetchArgus = function(json, exportCallback) {
                             var argus = ($(".Result_Cote.arial.tx20").text()).replace(/[^0-9]/ig,"");
                           //console.log(cote_title_href + " > " + argus + "€");
                           //exportCallback(argus);
-                            var argus_txt = argus + " €"
-                          var new_row = { version : cote_title,
-                                          argus : argus_txt   }
+                          var argus_txt = argus + " €";
+                          var deal = "bad deal";
+                          if(parseInt(argus) > parseInt(lbc_price)) {
+                            deal = "good deal";
+                          }
+
+
+                          var new_row = { version : current_car_title,
+                                          argus : argus_txt,
+                                          good_deal : deal }
                           rows_result.push(new_row)
                           callback(); // break asyncForEach, go next
                       }
@@ -161,3 +174,30 @@ exports.fetchArgus = function(json, exportCallback) {
 
 
 } // end export method
+
+
+
+
+// function to count match in both title strings in lacentrale and leboncoin title
+function count_match(lbc_title, lbc_brand, lbc_model, lc_string) {
+    //lbc
+    lbc_title = lbc_title.replace(lbc_brand,'');
+    lbc_title = lbc_title.replace(lbc_model,'');
+    var lbc_array = lbc_title.split(" ");
+    //lc
+    lc_string = lc_string.toLowerCase();
+    var lc_array = lc_string.split(" ");
+
+    var numberOfMatch = 0;
+
+    for (var i = 0; i < lbc_array.length; i++) {
+      for (var y = 0; y < lc_array.length; y++) {
+         if(lbc_array[i] == lc_array[y]) {
+           numberOfMatch++;
+         }
+      }
+    }
+
+    return numberOfMatch;
+
+}

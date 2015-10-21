@@ -15,7 +15,7 @@ var server = http.createServer(function(req, res) {
   var page = url.parse(req.url).pathname;
     res.writeHead(200, {"Content-Type": "text/plain"});
     if (page == '/') {
-        res.write('To use the server, follow the link : localhost:7070/argus?flag=868496177 \n For example : for http://www.leboncoin.fr/voitures/865394106.htm?ca=12_s, the flag will be : 865394106');
+        res.write('To use the server, extract flag number from leboncoin url and then go to localhost with your parameter : localhost:7070/argus?flag=00000000 \n For example : for http://www.leboncoin.fr/voitures/865394106.htm?ca=12_s, the flag will be : 865394106');
         res.end();
     }
     else if (page == '/argus') {
@@ -30,10 +30,11 @@ var server = http.createServer(function(req, res) {
             // use our leboncoin module :
             leboncoin.getJson(params['flag'],function(jsonResult){
               // that code will be executed when the getJson is done :
-                console.log("SERV_log // got result from lbc module -> " + jsonResult['model']);
+                console.log("SERV_log // got result from lbc module -> " + jsonResult['model'] + " ~~ price : " + jsonResult['price']);
               // use our lacentrale module :
               lacentrale.fetchArgus(jsonResult, function(argusResult) {
-                 console.log("SERV_log // got result from lc module -> " + argusResult);
+                // console.log("SERV_log // got result from lc module -> " + argusResult);
+                res.write(argusResult + "");
               });
 
               res.write("working for u (check the console please)");
