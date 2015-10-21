@@ -1,62 +1,65 @@
-var http = require('http');
-var url = require('url');
-var io = require('socket.io');
-var querystring = require('querystring');
-var leboncoin = require("./leboncoin");
-var lacentrale = require("./lacentrale");
+var http = require('http'),
+    fs = require('fs'),
+    url = require('url'),
+    leboncoin = require("./leboncoin"),
+    lacentrale = require("./lacentrale"),
+    express = require('express'),
+    app = express(),
+    path = require('path'),
+    bodyParser = require('body-parser');
 
-/*
- *  SERVER NODE JS
- *  run this file and open your browser : localhost:7070/argus?flag=<number>
- */
-
-
-var server = http.createServer(function(req, res) {
-  var page = url.parse(req.url).pathname;
-    res.writeHead(200, {"Content-Type": "text/plain"});
-    if (page == '/') {
-        res.write('To use the server, extract flag number from leboncoin url and then go to localhost with your parameter : localhost:7070/argus?flag=00000000 \n For example : for http://www.leboncoin.fr/voitures/865394106.htm?ca=12_s, the flag will be : 865394106');
-        res.end();
-    }
-    else if (page == '/argus') {
-        //TODO when UI ready // get the url given by the user or given by the clipboard
-        // var test = "http://www.leboncoin.fr/voitures/870448645.htm?ca=12_s";
-        // var lbc_flag = test.substring(test.lastIndexOf("/")+1,test.lastIndexOf(".")); // give us the flag e.g. 870448645
-
-        // get the parameters in the url
-        var params = querystring.parse(url.parse(req.url).query);
-        if('flag' in params) {
-
-            // use our leboncoin module :
-            leboncoin.getJson(params['flag'],function(jsonResult){
-              // that code will be executed when the getJson is done :
-                console.log("SERV_log // got result from lbc module -> " + jsonResult['model'] + " ~~ price : " + jsonResult['price']);
-              // use our lacentrale module :
-              lacentrale.fetchArgus(jsonResult, function(argusResult) {
-                // console.log("SERV_log // got result from lc module -> " + argusResult);
-                res.write(argusResult + "");
-              });
-
-              res.write("working for u (check the console please)");
-              res.end();
-
-            });
-              // res.write("json generated with leboncoin module" + json);
+app.set('views', path.join(__dirname, 'views'));
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
-            // when json is loaded from lbc module :
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname, '/views', 'index.html'));
+ });
 
-            // page de test
-            // res.write("\n testing lacentrale");
-            // var argus = lacentrale.fetchArgus(json);
-            // res.write("\n url : " + argus);
-          }
-        else {
-            res.write('please add the "flag" parameter to the url');
-            res.end();
-        }
-    }
-});
-server.listen(7070);
+app.post('/scrape', function(req, res) {
 
-io.listen(server);
+      var url = req.body.lbc_url;
+
+      // running leboncoin module
+      leboncoin.getJson(url,function(lbc_jsonResult){
+        console.log("SERV_log // lbc_module -> done");
+        // running lacentrale module when lbc is done
+        lacentrale.fetchArgus(lbc_jsonResult, function(rows_result) {
+            // show result in the table display
+            fs.readFile('./views/results.html', function (err, html) {
+                  if (err) {
+                      throw err;
+                  }
+                  else {
+                console.log(html);
+                  res.contentType('text/html');
+                //  var table = html.getElementById("resultTable");
+                  for(var i = 0 ; i < rows_result.length; i++) {
+                    console.log(rows_result[i].version + " || " +  rows_result[i].argus + " || " + rows_result[i].good_deal);
+
+                    // var row = table.insertRow(1);
+                    // var cell1 = row.insertCell(0);  //version
+                    // var cell2 = row.insertCell(1);  //argus
+                    // var cell3 = row.insertCell(2);  //good_deal
+                    // cell1.innerHTML = rows_result[i].version;
+                    // cell2.innerHTML = rows_result[i].argus;
+                    // cell3.innerHTML = rows_result[i].good_deal + "€";
+
+                  }
+                  res.send(html);
+
+              } // *end* else
+            }); // *end* fs readfile
+          }); // *end* lacentrale fetch argus
+      }); // *end* leboncoin get json
+
+ });
+
+
+ var server = app.listen(7070, function () {
+         var host = server.address().address;
+         var port = server.address().port;
+         console.log('App is listening at http://%s:%s', host, port);
+
+ });

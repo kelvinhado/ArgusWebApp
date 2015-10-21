@@ -45,17 +45,17 @@ exports.fetchArgus = function(json, exportCallback) {
 
 
   // initialize json informations from lbc
-  var lbc_title = (json['title']).toLowerCase();
-  var lbc_brand = (json['brand']).toLowerCase();
-  var lbc_model = (json['model']).toLowerCase();
-  var lbc_energy = (json['energy']).toLowerCase();
-  var lbc_year = json['year'];
-  var lbc_kilometers = json['kilometers'];
-  var lbc_gearbox = (json['gearbox']).toLowerCase();
-  var lbc_description = json['description'];
-  var lbc_price = json['price'];
+  var lbc_title = json.title.toLowerCase();
+  var lbc_brand = json.brand.toLowerCase();
+  var lbc_model = json.model.toLowerCase();
+  var lbc_energy = json.energy.toLowerCase();
+  var lbc_year = json.year;
+  var lbc_kilometers = json.kilometers;
+  var lbc_gearbox = json.gearbox.toLowerCase();
+  var lbc_description = json.description;
+  var lbc_price = json.price;
 
-  console.log("LC_log // receive : " + lbc_title + "|" + lbc_gearbox + "|" + lbc_energy);
+  console.log("LC_log // receive : " + lbc_title + "|" + lbc_gearbox + "|" + lbc_energy + "|" + lbc_price);
   // build request url using json
   var url = baseUrl;
       url += "-" + lbc_brand;
@@ -117,20 +117,23 @@ exports.fetchArgus = function(json, exportCallback) {
                   request(cote_url, function(error, response, html) {
                       if(!error) {
                           var $ = cheerio.load(html);
-                            var argus = ($(".Result_Cote.arial.tx20").text()).replace(/[^0-9]/ig,"");
+                          var argus = ($(".Result_Cote.arial.tx20").text()).replace(/[^0-9]/ig,"");
                           //console.log(cote_title_href + " > " + argus + "€");
                           //exportCallback(argus);
                           var argus_txt = argus + " €";
-                          var deal = "bad deal";
-                          if(parseInt(argus) > parseInt(lbc_price)) {
+                          var deal = "";
+                          if(parseInt(argus, 10) > parseInt(lbc_price, 10)) {
                             deal = "good deal";
+                          }
+                          else {
+                            deal = "bad deal";
                           }
 
 
                           var new_row = { version : current_car_title,
                                           argus : argus_txt,
-                                          good_deal : deal }
-                          rows_result.push(new_row)
+                                          good_deal : deal };
+                          rows_result.push(new_row);
                           callback(); // break asyncForEach, go next
                       }
 
@@ -142,8 +145,7 @@ exports.fetchArgus = function(json, exportCallback) {
                 callback(); // goToNext if no match
               }
 
-        } // when loop done
-        , function(err){
+        }, function(err){
             if(err) {
               console.log("004 - can't get any results");
                exportCallback("004 - can't get any results");

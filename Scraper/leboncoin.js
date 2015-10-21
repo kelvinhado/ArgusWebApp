@@ -8,26 +8,18 @@ var app     = express();
  *  LEBONCOIN MODULE
  */
 
-// If you have an error related to express, request or cheerio, just type on the terminal $ npm install XX (express,request,cheerio).
-
 
 // we export the function so that we can use it outside by using leboncoin.getJson(flag).
 // this function will be executed only when called from our server.
-exports.getJson = function(flag, callback) {
+exports.getJson = function(url, callback) {
 
-  // building the url
-  url = 'http://www.leboncoin.fr/voitures/' + flag + '.htm';
-
-  // ** for debug
-    // console.log('url : ' + url);
-  // ** end debug
 
  var req = request(url, function(error, response, html){
         if(!error){
             var $ = cheerio.load(html);
 
             var title, postCode, brand, model, energy, year, kilometers, gearbox, description, price;
-            var json = { title :"", postCode:"", brand:"", model:"", energy:"", year:"", kilometers:"", gearbox:"", description:"", price:""} // This is where we define our .json
+            var json = { title :"", postCode:"", brand:"", model:"", energy:"", year:"", kilometers:"", gearbox:"", description:"", price:""}; // This is where we define our .json
 
             var tablbc =[];
             var tab = [];
@@ -37,23 +29,23 @@ exports.getJson = function(flag, callback) {
               var k = $('th',this).text();  // value in each th tag
               var v = $('td', this).text(); // value in each td tag
               tab.push(v);
-            })
+            });
 
             $('.content').filter(function(){ // You use .filter to check on one tag
               json.description = cleanField($(this).text());
-            })
+            });
 
             $('.header_adview').filter(function(){
               json.title = cleanField($(this).text());
-            })
+            });
 
 
             $('.lbcParams.criterias td').each(function(){ //Between lbcParams and criteria, there should be an empty space but we need to put a . otherwise it will think that criteria is another tag to check.
               var v = $(this).text();
               tablbc.push(v);
-            })
+            });
 
-            json.price = cleanField(tab[0]);
+            json.price = (cleanField(tab[0]).replace("€", "")).replace(/ /g,'');
             json.postCode = tab[2];
 
             json.brand = tablbc[0];
@@ -64,12 +56,6 @@ exports.getJson = function(flag, callback) {
             json.gearbox = tablbc[5];
             callback(json);
         }
-
-// ** for debug
-  // fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
-  // console.log('File successfully written! - Check your project directory for the output.json file');
-  // })
-// ** end debug
 
 
 }); // end request
