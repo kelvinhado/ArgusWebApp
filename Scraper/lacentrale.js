@@ -14,7 +14,7 @@ var denom_lc_gearbox_mecanique = "mécanique";
 var baseUrl = "http://www.lacentrale.fr/cote-voitures";
 //
 
-// for easy display
+//**for easy display
 var header = [
     {
         value : "version",
@@ -38,7 +38,7 @@ var header = [
     }
 ];
 var rows_result = [];
-
+//**
 
 exports.fetchArgus = function(json, exportCallback) {
 

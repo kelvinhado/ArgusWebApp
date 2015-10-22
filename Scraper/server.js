@@ -4,6 +4,7 @@ var http = require('http'),
     leboncoin = require("./leboncoin"),
     lacentrale = require("./lacentrale"),
     express = require('express'),
+    cheerio = require('cheerio'),
     app = express(),
     path = require('path'),
     bodyParser = require('body-parser');
@@ -17,7 +18,7 @@ app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, '/views', 'index.html'));
  });
 
-app.post('/scrape', function(req, res) {
+app.post('/', function(req, res) {
 
       var url = req.body.lbc_url;
 
@@ -27,29 +28,25 @@ app.post('/scrape', function(req, res) {
         // running lacentrale module when lbc is done
         lacentrale.fetchArgus(lbc_jsonResult, function(rows_result) {
             // show result in the table display
-            fs.readFile('./views/results.html', function (err, html) {
+            fs.readFile('./views/results.html','utf8', function (err, html) {
                   if (err) {
                       throw err;
                   }
                   else {
-                console.log(html);
-                  res.contentType('text/html');
-                //  var table = html.getElementById("resultTable");
-                  for(var i = 0 ; i < rows_result.length; i++) {
-                    console.log(rows_result[i].version + " || " +  rows_result[i].argus + " || " + rows_result[i].good_deal);
+                     res.contentType('text/html');
+                     $ = cheerio.load(html);
+                      for(var i = 0 ; i < rows_result.length; i++) {
+                      //  console.log(rows_result[i].version + " || " +  rows_result[i].argus + " || " + rows_result[i].good_deal);
+                            var row = "<tr>";
+                            row += "<td>"+rows_result[i].version+"</td>";
+                            row += "<td>"+rows_result[i].argus+"</td>";
+                            row += "<td>"+rows_result[i].good_deal+"</td>";
+                            row += "</tr>";
+                            $('tbody').append(row);
+                          }
+                  res.send($.html());
 
-                    // var row = table.insertRow(1);
-                    // var cell1 = row.insertCell(0);  //version
-                    // var cell2 = row.insertCell(1);  //argus
-                    // var cell3 = row.insertCell(2);  //good_deal
-                    // cell1.innerHTML = rows_result[i].version;
-                    // cell2.innerHTML = rows_result[i].argus;
-                    // cell3.innerHTML = rows_result[i].good_deal + "€";
-
-                  }
-                  res.send(html);
-
-              } // *end* else
+                  } // *end* else
             }); // *end* fs readfile
           }); // *end* lacentrale fetch argus
       }); // *end* leboncoin get json
