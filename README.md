@@ -21,4 +21,4 @@ In France, [leboncoin.fr](http://www.leboncoin.fr/) is the website leader of cla
     From the Json object extracted, give the "Cote Argus".
 - [X] Build the Node server with Express.
 - [X] Design the WebApp that give a feedback to the user if the deal is good or not.
-- [] Ultime power ! from a research in leboncoin (with several results) give the feedbacks for every post.
+- [ ] Ultime power ! from a research in leboncoin (with several results) give the feedbacks for every post.
