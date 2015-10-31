@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Javascript TD Application</title>
+    <script src="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.min.js"></script>
+    <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.teal-cyan.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+
+<body>
+
+  <!-- Simple header with scrollable tabs. -->
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <!-- Title -->
+        <span class="mdl-layout-title">ArgusWebApp</span>
+      </div>
+      <!-- Tabs -->
+      <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+        <a href="#scroll-tab-1" class="mdl-layout__tab is-active">Form</a>
+      </div>
+    </header>
+
+
+    <main class="mdl-layout__content">
+      <section class="mdl-layout__tab-panel is-active" id="scroll-tab-1">
+        <div class="page-content">
+
+          <h4>Paste your url here :)</h4>
+          <form name="myform" action="/" method="post">
+          <input type="text" name="lbc_url" value=""  />
+          <input type="submit" name="submit"/>
+
+          </form>
+          <p>The operation may take some time..</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+</body>
+</html>
