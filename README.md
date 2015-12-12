@@ -1,5 +1,5 @@
 ## Argus Web App
-
+*
 *La cote Argus* is a reference for used vehicles prices for professionals and the general public.
 
 Very useful to check if a classified ad is a good deal. You could use the free website [lacentrale.fr](http://www.lacentrale.fr/lacote_origine.php)
